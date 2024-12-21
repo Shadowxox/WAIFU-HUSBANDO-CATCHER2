@@ -3,7 +3,7 @@ class Config(object):
 
     # Get this value from my.telegram.org/apps
     OWNER_ID = "7481211733"
-    sudo_users = "1496149228", "2022832277", "6925950092", "8134602296", "5877629357", "7481211733", "7152534468"
+    sudo_users = "1496149228", "2022832277", "6925950092", "8134602296", "5877629357", "6861906489", "7152534468"
     GROUP_ID = -1002337505439
 
     TOKEN = "6832094998:AAFr9ukEpdTJ--LyasNV95yD_5X-_wQRdU0"
