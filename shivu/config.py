@@ -14,8 +14,8 @@ class Config(object):
     UPDATE_CHAT = "-1002337505439"
     BOT_USERNAME = "Catch_your_harem_bot"
     CHARA_CHANNEL_ID = "-1002337505439"
-    api_id = 22451491
-    api_hash = "28e74942125f7e4968398ea651cd417b"
+    api_id = 26977255
+    api_hash = "f1d4b2272a2fd50ecdae431ca43fc045"
 
 
 class Production(Config):
