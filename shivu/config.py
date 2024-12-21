@@ -6,7 +6,7 @@ class Config(object):
     sudo_users = "1496149228", "2022832277", "6925950092", "8134602296", "5877629357", "6861906489", "7152534468"
     GROUP_ID = -1002337505439
 
-    TOKEN = "6832094998:AAFr9ukEpdTJ--LyasNV95yD_5X-_wQRdU0"
+    TOKEN = "7686081397:AAGe1wG2M_NsLHl_X5BLXzh88nv6Vmc6kZ0"
     mongo_url = "mongodb+srv://naruto:hinatababy@cluster0.rqyiyzx.mongodb.net/"
     PARTNER = "7370569442", "6861852788", "7378476666"
     PHOTO_URL = ["https://files.catbox.moe/7vr2im.jpg", "https://files.catbox.moe/7vr2im.jpg"]
