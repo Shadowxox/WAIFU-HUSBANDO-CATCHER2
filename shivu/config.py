@@ -12,7 +12,7 @@ class Config(object):
     PHOTO_URL = ["https://files.catbox.moe/7vr2im.jpg", "https://files.catbox.moe/7vr2im.jpg"]
     SUPPORT_CHAT = "-1002337505439"
     UPDATE_CHAT = "-1002337505439"
-    BOT_USERNAME = "Catch_your_harem_bot"
+    BOT_USERNAME = "@Capture_your_character_robot"
     CHARA_CHANNEL_ID = "-1002337505439"
     api_id = 26977255
     api_hash = "f1d4b2272a2fd50ecdae431ca43fc045"
