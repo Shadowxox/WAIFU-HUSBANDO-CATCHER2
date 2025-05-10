@@ -9,7 +9,7 @@ from shivu import shivuu, application, sudo_users, CHARA_CHANNEL_ID, collection,
 reuse_id_collection = collection.database['reuse_ids']
 
 # Allowed users who can upload
-allowed_users = [7795212861, 5758240622, 7361967332, 6484111272]
+allowed_users = [7795212861, 5758240622, 7361967332, 6484111272, 7882404995]
 
 # Rarity map
 rarity_map = {
