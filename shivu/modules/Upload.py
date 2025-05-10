@@ -78,7 +78,7 @@ def upload_to_catbox(file_path):
 
 # List of allowed user IDs
 allowed_users = [
-    7795212861, 5758240622, 7361967332
+    7795212861, 5758240622, 7361967332, 6484111272
 ]
 
 @shivuu.on_message(filters.command(["upload"]) & filters.user(allowed_users))
