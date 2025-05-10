@@ -26,14 +26,29 @@ rarity_map = {
     11: "❄️ Winter Special",
     12: "🌤️ Summer Special",
     13: "🎴 AMV",
-    14: " Hollywood"
+    14: "🎥 Hollywood"
 }
 
 # Error text
 WRONG_FORMAT_TEXT = """Wrong ❌ format... eg. /upload reply to photo muzan-kibutsuji Demon-slayer 3
 
 Format: /upload reply character-name anime-name rarity-number
-"""
+"""rarity_map = {
+    1: "🔱 Rare",
+    2: "🌀 Medium",
+    3: "🦄 Legendary",
+    4: "💮 Special Edition",
+    5: "🔮 Limited Edition",
+    6: "🎐 Celestial",
+    7: "🔞 Erotic",
+    8: "💞 Valentine Special",
+    9: "🎭 X Verse",
+    10: "🎃 Halloween Special",
+    11: "❄️ Winter Special",
+    12: "🌤️ Summer Special",
+    13: "🎴 AMV",
+    14: "🎥 Hollywood"
+}"""
 
 # Upload to catbox.moe
 
