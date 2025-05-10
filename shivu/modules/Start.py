@@ -57,7 +57,7 @@ async def send_private_message(update: Update, context: CallbackContext) -> None
     """
     keyboard = [
         [InlineKeyboardButton("ADD ME", url=f'http://t.me/Dbz_waifubot?startgroup=true')],
-        [InlineKeyboardButton("SUPPORT", url=f'https://t.me/hwkwjieie'), InlineKeyboardButton("UPDATES", url=f'https://t.me/DBZ_COMMUNITY')],
+        [InlineKeyboardButton("SUPPORT", url=f'https://t.me/hwkwjieie'), InlineKeyboardButton("UPDATES", url=f'https://t.me/DBZ_COMMUNITY2')],
         [InlineKeyboardButton("HELP", callback_data='help')],
         [InlineKeyboardButton("REPO", url=f'https://t.me/DBZ_ONGOING')]
     ]
@@ -86,7 +86,7 @@ async def send_group_message(update: Update, context: CallbackContext) -> None:
     """
     keyboard = [
         [InlineKeyboardButton("ADD ME", url=f'http://t.me/Dbz_waifubot?startgroup=true')],
-        [InlineKeyboardButton("SUPPORT", url=f'https://t.me/hwkwjieie'), InlineKeyboardButton("UPDATES", url=f'https://t.me/DBZ_COMMUNITY')],
+        [InlineKeyboardButton("SUPPORT", url=f'https://t.me/hwkwjieie'), InlineKeyboardButton("UPDATES", url=f'https://t.me/DBZ_COMMUNITY2')],
         [InlineKeyboardButton("HELP", callback_data='help')],
         [InlineKeyboardButton("REPO", url=f'https://t.me/DBZ_ONGOING')]
     ]
@@ -100,9 +100,9 @@ async def button(update: Update, context: CallbackContext) -> None:
     await query.answer()
 
     if query.data == 'help':
-        await send_help_message(update, context)
+              send_help_message(update, context)
     elif query.data == 'back':
-        await send_private_message(update, context)
+              send_private_message(update, context)
 
 async def send_help_message(update: Update, context: CallbackContext) -> None:
     help_text = """
