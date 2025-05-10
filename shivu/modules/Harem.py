@@ -4,7 +4,7 @@ from html import escape
 from shivu import user_collection, application
 from telegram.constants import ParseMode
 
-# Updated rarity mapping
+# Rarity Mapping
 RARITY_MAP = {
     1: "🔱 Rare",
     2: "🌀 Medium",
@@ -35,24 +35,32 @@ async def harem(update: Update, context: CallbackContext, mode="harem") -> None:
     grouped = {}
     for char in user['characters']:
         char_id = char['id']
-        char['rarity'] = RARITY_MAP.get(char.get('rarity', 1), "Unknown")
-        if mode == "harem" and char['rarity'] in AMV_RARITIES:
+        rarity = RARITY_MAP.get(char.get('rarity', 1), "Unknown")
+        if mode == "harem" and rarity in AMV_RARITIES:
             continue
-        if mode == "amv" and char['rarity'] not in AMV_RARITIES:
+        if mode == "amv" and rarity not in AMV_RARITIES:
             continue
         if char_id not in grouped:
-            grouped[char_id] = {**char, 'count': 1}
+            grouped[char_id] = {
+                'id': char_id,
+                'names': [char['name']],
+                'rarity': rarity,
+                'count': 1
+            }
         else:
             grouped[char_id]['count'] += 1
+            if char['name'] not in grouped[char_id]['names']:
+                grouped[char_id]['names'].append(char['name'])
 
     if not grouped:
         await update.message.reply_text("No characters found for this view.")
         return
 
-    msg = f"<b>{escape(update.effective_user.first_name)}'s {'Harem' if mode == 'harem' else 'AMV Collection'}</b>\n\n"
+    title = f"{escape(update.effective_user.first_name)}'s {'Harem' if mode == 'harem' else 'AMV Collection'}"
+    msg = f"<b>{title}</b>\n\n"
     for char in grouped.values():
-        rarity = char['rarity']
-        msg += f"<b>‴</b> <code>{char['id']}</code> - {char['name']} ×{char['count']} <i>({rarity})</i>\n"
+        names = " , ".join(char['names'])
+        msg += f"◇🕊️│<code>{char['id']}</code> {names} ×{char['count']}\n"
 
     keyboard = [
         [
@@ -72,6 +80,7 @@ async def view_callback(update: Update, context: CallbackContext):
     await query.message.delete()
     await harem(update, context, mode)
 
+# Handlers
 application.add_handler(CommandHandler(["harem", "collection"], harem))
 application.add_handler(CallbackQueryHandler(view_callback, pattern=r"^view:"))
 application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.message.delete(), pattern="^close$"))
