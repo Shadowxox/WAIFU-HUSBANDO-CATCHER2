@@ -91,7 +91,7 @@ async def send_private_message(update: Update, context: ContextTypes.DEFAULT_TYP
         "⏱ Bot Birth: Just born 9 May"
     )
     keyboard = [
-        [InlineKeyboardButton("ADD ME", url=f"http://t.me/{BOT_USERNAME}?startgroup=true")],
+        [InlineKeyboardButton("ADD ME", url=f"http://t.me/Dbz_waifubot?startgroup=true")],
         [InlineKeyboardButton("SUPPORT", url=SUPPORT_CHAT), InlineKeyboardButton("UPDATES", url=UPDATE_CHAT)],
         [InlineKeyboardButton("HELP", callback_data="help")],
         [InlineKeyboardButton("REPO", url="https://t.me/DBZ_ONGOING")]
@@ -117,7 +117,7 @@ async def send_group_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
         "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━⧫"
     )
     keyboard = [
-        [InlineKeyboardButton("ADD ME", url=f"http://t.me/{BOT_USERNAME}?startgroup=true")],
+        [InlineKeyboardButton("ADD ME", url=f"http://t.me/Dbz_waifubot?startgroup=true")],
         [InlineKeyboardButton("SUPPORT", url=SUPPORT_CHAT), InlineKeyboardButton("UPDATES", url=UPDATE_CHAT)],
         [InlineKeyboardButton("HELP", callback_data="help")],
         [InlineKeyboardButton("REPO", url="https://t.me/DBZ_ONGOING")]
