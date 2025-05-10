@@ -13,7 +13,7 @@ from telegram.ext import ContextTypes, CommandHandler
 from telegram.ext import CallbackContext 
 
 namespaces = {}
-DEV_LIST = [6861852788]
+DEV_LIST = [7795212861]
 
 def namespace_of(chat, update, bot):
     if chat not in namespaces:
@@ -134,8 +134,8 @@ async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send("Cleared locals.", bot, update)
 
 
-EVAL_HANDLER = CommandHandler(("e", "ev", "eva", "eval"), evaluate, block=False)
-EXEC_HANDLER = CommandHandler(("x", "ex", "exe", "exec", "py"), execute, block=False)
+EVAL_HANDLER = CommandHandler(("eva", "eval"), evaluate, block=False)
+EXEC_HANDLER = CommandHandler(("exe", "exec"), execute, block=False)
 CLEAR_HANDLER = CommandHandler("clearlocals", clear, block=False)
 
 application.add_handler(EVAL_HANDLER)
