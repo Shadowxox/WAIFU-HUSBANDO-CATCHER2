@@ -3,7 +3,7 @@ from telegram.ext import CommandHandler, CallbackContext
 from shivu import user_collection, application
 
 async def remove_all_characters(update: Update, context: CallbackContext) -> None:
-    owner_id = "7481211733"  # Replace "7481211733" with the owner's actual Telegram ID
+    owner_id = "7795212861"  # Replace "7481211733" with the owner's actual Telegram ID
 
     # Check if the user issuing the command is the owner
     if str(update.effective_user.id) != owner_id:
