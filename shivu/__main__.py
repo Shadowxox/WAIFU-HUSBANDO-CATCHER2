@@ -138,14 +138,6 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     sent_characters[chat_id].append(character.get('id'))
     last_characters[chat_id] = character
 
-if character.get('rarity') == '🎃 Halloween':
-        await context.bot.send_message(chat_id=7795212861, text=f"A Halloween character has spawned! Character id: {character['id']}")
-
-    rarity_name = rarities.get(character['rarity'], f'{character["rarity"]}')  
-
-    sent_characters[chat_id].append(character.get('id'))
-    last_characters[chat_id] = character
-
     if chat_id in first_correct_guesses:
         del first_correct_guesses[chat_id]
 
