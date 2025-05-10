@@ -19,7 +19,7 @@ async def rarities(update: Update, context: CallbackContext):
             "💮 Special Edition": 0,
             "🔮 Limited Edition": 0,
             "🎐 Celestial": 0,
-            "💸 Premium Edition": 0,
+            "🔞 Erotic": 0,
             "🧬 X Verse": 0,
             "🎃 Halloween Special": 0,
             "💝 Valentine Special": 0,
@@ -45,4 +45,4 @@ async def rarities(update: Update, context: CallbackContext):
         logger.error(f"An error occurred: {str(e)}")
         await update.message.reply_text(f"An error occurred: {str(e)}")
 
-application.add_handler(CommandHandler("rarity", rarity))
+application.add_handler(CommandHandler("rarities", rarities))
