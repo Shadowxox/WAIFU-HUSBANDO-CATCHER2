@@ -11,18 +11,18 @@ RARITY_MAP = {
     3: "🦄 Legendary",
     4: "💮 Special Edition",
     5: "🔮 Limited Edition",
-    6: "🌐 Celestial",
+    6: "🎐 Celestial",
     7: "🔞 Erotic",
-    8: "💖 Valentine Special",
-    9: "🎝 X Verse",
+    8: "💞 Valentine Special",
+    9: "🎭 X Verse",
     10: "🎃 Halloween Special",
     11: "❄️ Winter Special",
     12: "🌤️ Summer Special",
     13: "🎴 AMV",
-    14: "🎮 Hollywood"
+    14: "🎥 Hollywood"
 }
 
-AMV_RARITIES = ["🎴 AMV", "🎬 Hollywood"]
+AMV_RARITIES = ["🎴 AMV", "🎥 Hollywood"]
 
 async def harem(update: Update, context: CallbackContext, mode="harem") -> None:
     user_id = update.effective_user.id
