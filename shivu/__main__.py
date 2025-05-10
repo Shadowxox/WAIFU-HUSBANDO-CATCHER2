@@ -5,10 +5,7 @@ import random
 import re
 import asyncio
 from html import escape 
-import asyncio
-import random
-from html import escape
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CommandHandler, CallbackContext, MessageHandler, filters
 from shivu import app
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -21,7 +18,6 @@ from shivu import collection, top_global_groups_collection, group_user_totals_co
 from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
 from shivu.modules import ALL_MODULES
 
-
 locks = {}
 message_counters = {}
 spam_counters = {}
@@ -30,66 +26,55 @@ sent_characters = {}
 first_correct_guesses = {}
 message_counts = {}
 
+SPECIAL_SPAWN_GROUP_ID = -1002643948280
 
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("shivu.modules." + module_name)
 
-
 last_user = {}
 warned_users = {}
+
 def escape_markdown(text):
-    escape_chars = r'\*_`\\~>#+-=|{}.!'
-    return re.sub(r'([%s])' % re.escape(escape_chars), r'\\\1', text)
-
-
+    escape_chars = r'\\*_`\\~>#+-=|{}.!'
+    return re.sub(r'([%s])' % re.escape(escape_chars), r'\\\\\1', text)
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
     user_id = update.effective_user.id
-
 
     if chat_id not in locks:
         locks[chat_id] = asyncio.Lock()
     lock = locks[chat_id]
 
     async with lock:
-
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
             message_frequency = chat_frequency.get('message_frequency', 100)
         else:
             message_frequency = 100
 
-
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
             last_user[chat_id]['count'] += 1
             if last_user[chat_id]['count'] >= 10:
-
                 if user_id in warned_users and time.time() - warned_users[user_id] < 600:
                     return
                 else:
-
-
                     return
         else:
             last_user[chat_id] = {'user_id': user_id, 'count': 1}
-
 
         if chat_id in message_counts:
             message_counts[chat_id] += 1
         else:
             message_counts[chat_id] = 1
 
-
         if message_counts[chat_id] % message_frequency == 0:
             await send_image(update, context)
-
             message_counts[chat_id] = 0
 
 async def send_image(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d")  # Get current date
-
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d")
     all_characters = list(await collection.find({}).to_list(length=None))
 
     if chat_id not in sent_characters:
@@ -98,62 +83,50 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     if len(sent_characters[chat_id]) == len(all_characters):
         sent_characters[chat_id] = []
 
-    # Calculate today's message count
-    if chat_id in message_counters:
-        today_message_count = message_counters[chat_id].get(current_time, 0)
-    else:
-        today_message_count = 0
-
-    # Check the total messages sent
-    total_messages_sent = message_counts.get(chat_id, 0)
-
-    # Determine if we should spawn a Halloween character
-    spawn_halloween = 200 <= total_messages_sent <= 300 and random.random() < 0.1  # 10% chance
+    today_message_count = message_counts.get(chat_id, 0)
 
     rarities = {
-    1: "🔱 Rare",
-    2: "🌀 Medium",
-    3: "🦄 Legendary",
-    4: "💮 Special Edition",
-    5: "🔮 Limited Edition",
-    6: "🎐 Celestial",
-    7: "🔞 Erotic",
-    8: "💞 Valentine Special",
-    9: "🎭 X Verse",
-    10: "🎃 Halloween Special",
-    11: "❄️ Winter Special",
-    12: "🌤️ Summer Special",
-    13: "🎴 AMV",
-    14: " Hollywood"
-}
+        1: "🔱 Rare",
+        2: "🌀 Medium",
+        3: "🦄 Legendary",
+        4: "💮 Special Edition",
+        5: "🔮 Limited Edition",
+        6: "🎐 Celestial",
+        7: "🔞 Erotic",
+        8: "💞 Valentine Special",
+        9: "🎭 X Verse",
+        10: "🎃 Halloween Special",
+        11: "❄️ Winter Special",
+        12: "🌤️ Summer Special",
+        13: "🎴 AMV",
+        14: " Hollywood"
+    }
 
-
-    # Define spawn probabilities for each rarity
     spawn_counts = {
         '🔱 Rare': 15,
         '🌀 Medium': 6,
-        '🦄 Legendary: 9,
-        '💮 Special edition: 4,
+        '🦄 Legendary': 9,
+        '💮 Special Edition': 4,
         '🔮 Limited Edition': 4,
         '🎐 Celestial': 1,
-        '🎥 Hollywood: 1,
-        '🔞 Erotic': 0,
         '🎭 X Verse': 1,
         '🎃 Halloween Special': 0,
         '💞 Valentine Special': 0,
         '❄️ Winter Special': 1,
         '🌤️ Summer Special': 1,
-        '🎴 AMV': 0
+        '🔞 Erotic': 1,
+        '🎴 AMV': 1,
+        '🎥 Hollywood': 1
     }
 
+    if chat_id == SPECIAL_SPAWN_GROUP_ID:
+        if today_message_count >= 150:
+            spawn_counts['🔞 Erotic'] = 1
+        if today_message_count >= 300:
+            spawn_counts['🎴 AMV'] = 1
+        if today_message_count >= 350:
+            spawn_counts['🎥 Hollywood'] = 1
 
-    # Adjust spawn counts for Special Edition
-    if today_message_count <= 4:  
-        spawn_counts['💮 Special edition'] = 4
-    else:
-        spawn_counts['💮 Special edition'] = 2
-
-    # Create a list of characters based on spawn counts
     characters_to_spawn = []
     for rarity, count in spawn_counts.items():
         characters_to_spawn.extend([c for c in all_characters if c.get('id') not in sent_characters[chat_id] and c.get('rarity') == rarity] * count)
@@ -162,9 +135,10 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         characters_to_spawn = all_characters
 
     character = random.choice(characters_to_spawn)
+    sent_characters[chat_id].append(character.get('id'))
+    last_characters[chat_id] = character
 
-    # Log if a Halloween character spawns
-    if character.get('rarity') == '🎃 Halloween':
+if character.get('rarity') == '🎃 Halloween':
         await context.bot.send_message(chat_id=7795212861, text=f"A Halloween character has spawned! Character id: {character['id']}")
 
     rarity_name = rarities.get(character['rarity'], f'{character["rarity"]}')  
@@ -175,20 +149,18 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     if chat_id in first_correct_guesses:
         del first_correct_guesses[chat_id]
 
+    caption = f"🌟 A new {character.get('rarity')} character has emerged! Quickly, head to /guess [Name] to reveal its name! 🌟"
+
     if character.get('img_url'):
-        await context.bot.send_photo(
-            chat_id=chat_id,
-            photo=character['img_url'],
-            caption=f"🌟 A new {rarity_name} character has emerged! Quickly, head to /guess [Name] to reveal its name! 🌟",
-            parse_mode='Markdown'
-        )
+        await context.bot.send_photo(chat_id=chat_id, photo=character['img_url'], caption=caption, parse_mode='Markdown')
     elif character.get('vid_url'):
-        await context.bot.send_video(
-            chat_id=chat_id,
-            video=character['vid_url'],
-            caption=f"🌟 A new {rarity_name} character has emerged! Quickly, head to /guess [Name] to reveal its name! 🌟",
-            parse_mode='Markdown'
-        )
+        await context.bot.send_video(chat_id=chat_id, video=character['vid_url'], caption=caption, parse_mode='Markdown')
+
+# The rest of the guess(), fav(), and main() handlers remain unchanged
+# You can paste them below this function block or keep them as you had
+
+# Make sure to call message_counter in MessageHandler and run application as before
+
 
 async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
