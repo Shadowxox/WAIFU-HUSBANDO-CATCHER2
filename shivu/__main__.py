@@ -111,38 +111,39 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     spawn_halloween = 200 <= total_messages_sent <= 300 and random.random() < 0.1  # 10% chance
 
     rarities = {
-        1: '⚪️ Common',
-        2: '🟢 Medium',
-        3: '🟣 Rare',
-        4: '🟡 Legendary',
-        5: '💮 Special edition',
-        6: '🔮 Limited Edition',
-        7: '🎐 Celestial',
-        8: '🔞 Erotic',
-        9: '🧬 X Verse',
-        10: '🎃 Halloween Special',
-        11: '💝 Valentine Special',
-        12: '❄️ Winter Special',
-        13: '🌤️ Summer Special',
-        14: '💫 Angelic'
-    }
+    1: "🔱 Rare",
+    2: "🌀 Medium",
+    3: "🦄 Legendary",
+    4: "💮 Special Edition",
+    5: "🔮 Limited Edition",
+    6: "🎐 Celestial",
+    7: "🔞 Erotic",
+    8: "💞 Valentine Special",
+    9: "🎭 X Verse",
+    10: "🎃 Halloween Special",
+    11: "❄️ Winter Special",
+    12: "🌤️ Summer Special",
+    13: "🎴 AMV",
+    14: " Hollywood"
+}
+
 
     # Define spawn probabilities for each rarity
     spawn_counts = {
-        '⚪️ Common': 5,
-        '🟢 Medium': 6,
-        '🟣 Rare': 15,
-        '🟡 Legendary': 9,
-        '💮 Special edition': 4,
-        '🔮 Limited Edition': 1,
+        '🔱 Rare': 15,
+        '🌀 Medium': 6,
+        '🦄 Legendary: 9,
+        '💮 Special edition: 4,
+        '🔮 Limited Edition': 4,
         '🎐 Celestial': 1,
+        '🎥 Hollywood: 1,
         '🔞 Erotic': 0,
-        '🧬 X Verse': 0,
+        '🎭 X Verse': 1,
         '🎃 Halloween Special': 0,
-        '💝 Valentine Special': 0,
+        '💞 Valentine Special': 0,
         '❄️ Winter Special': 1,
-        '🌤️ Summer Special': 0,
-        '💫 Angelic': 0
+        '🌤️ Summer Special': 1,
+        '🎴 AMV': 0
     }
 
 
