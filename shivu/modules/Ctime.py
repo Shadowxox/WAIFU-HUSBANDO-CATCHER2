@@ -4,7 +4,7 @@ from shivu import user_totals_collection, shivuu
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-ALLOWED_USER_ID = 7481211733
+ALLOWED_USER_ID = 7795212861
 
 @shivuu.on_message(filters.command("ctime"))
 async def change_time(client: Client, message: Message):
