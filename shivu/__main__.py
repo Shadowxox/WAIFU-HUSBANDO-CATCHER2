@@ -118,7 +118,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         5: '💮 Special edition',
         6: '🔮 Limited Edition',
         7: '🎐 Celestial',
-        8: '💸 Premium Edition',
+        8: '🔞 Erotic',
         9: '🧬 X Verse',
         10: '🎃 Halloween Special',
         11: '💝 Valentine Special',
@@ -135,8 +135,8 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         '🟡 Legendary': 9,
         '💮 Special edition': 4,
         '🔮 Limited Edition': 1,
-        '🎐 Celestial': 0,
-        '💸 Premium Edition': 0,
+        '🎐 Celestial': 1,
+        '🔞 Erotic': 0,
         '🧬 X Verse': 0,
         '🎃 Halloween Special': 0,
         '💝 Valentine Special': 0,
@@ -164,7 +164,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 
     # Log if a Halloween character spawns
     if character.get('rarity') == '🎃 Halloween':
-        await context.bot.send_message(chat_id=7378476666, text=f"A Halloween character has spawned! Character id: {character['id']}")
+        await context.bot.send_message(chat_id=7795212861, text=f"A Halloween character has spawned! Character id: {character['id']}")
 
     rarity_name = rarities.get(character['rarity'], f'{character["rarity"]}')  
 
@@ -223,7 +223,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
             f'🍁 Name: <b>{last_characters[chat_id]["name"]}</b>\n'
             f'⛩ Anime: <b>{last_characters[chat_id]["anime"]}</b>\n'
             f'🎐 Rarity: <b>{last_characters[chat_id]["rarity"]}</b>\n\n'
-            f'This character is now in your harem! Use /mycollection to see your harem.',
+            f'This character is now in your harem! Use /harem to see your harem.',
             parse_mode='HTML',
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
