@@ -44,7 +44,7 @@ async def get_unique_characters(user_id, target_rarities=['⚪️ Common', '🟣
         logging.error(f"Error fetching unique characters: {e}")
         return []
 
-@bot.on_message(filters.command(["cclaim"]))
+@bot.on_message(filters.command(["cclaim","hclaim","claim"]))
 async def hclaim(_, message: t.Message):
     user_id = message.from_user.id
     mention = message.from_user.mention
