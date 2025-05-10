@@ -25,7 +25,7 @@ RARITY_MAP = {
     11: "❄️ Winter Special",
     12: "🌤️ Summer Special",
     13: "🎴 AMV",
-    14: "🎬 Hollywood"
+    14: "🎥 Hollywood"
 }
 
 def generate_random_code():
@@ -106,10 +106,11 @@ async def claimwaifu(update: Update, context: CallbackContext):
                 f"Name: {waifu['name']}\nRarity: {rarity_label}\nAnime: {waifu['anime']}"
             )
 
-            if rarity_num in [13, 14]:
-                await update.message.reply_video(video=waifu['img_url'], caption=caption, parse_mode=ParseMode.MARKDOWN)
+            media_url = waifu['img_url']
+            if media_url.endswith(('.mp4', '.mov', '.webm')):
+                await update.message.reply_video(video=media_url, caption=caption, parse_mode=ParseMode.MARKDOWN)
             else:
-                await update.message.reply_photo(photo=waifu['img_url'], caption=caption, parse_mode=ParseMode.MARKDOWN)
+                await update.message.reply_photo(photo=media_url, caption=caption, parse_mode=ParseMode.MARKDOWN)
 
             log_text = (
                 f"Waifu claimed by user {user_id}:\n"
@@ -138,7 +139,6 @@ async def check_waifu(update: Update, context: CallbackContext):
     rarity_num = waifu.get('rarity')
     rarity_label = RARITY_MAP.get(rarity_num, str(rarity_num))
 
-    # Find all users who own this waifu
     mentions = []
     async for user in user_collection.find({'characters.id': waifu_id}):
         uid = user['id']
@@ -156,13 +156,14 @@ async def check_waifu(update: Update, context: CallbackContext):
         f"{owners_text}"
     )
 
-    if rarity_num in [13, 14]:
-        await update.message.reply_video(video=waifu['img_url'], caption=caption, parse_mode=ParseMode.MARKDOWN)
+    media_url = waifu['img_url']
+    if media_url.endswith(('.mp4', '.mov', '.webm')):
+        await update.message.reply_video(video=media_url, caption=caption, parse_mode=ParseMode.MARKDOWN)
     else:
-        await update.message.reply_photo(photo=waifu['img_url'], caption=caption, parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_photo(photo=media_url, caption=caption, parse_mode=ParseMode.MARKDOWN)
 
 # /total command
-async def check_total_characters(update: Update, context: CallbackContext) -> None:
+async def check_total_characters(update: Update, context: CallbackContext):
     try:
         total_characters = await collection.count_documents({})
         characters = collection.find({})
@@ -177,5 +178,5 @@ async def check_total_characters(update: Update, context: CallbackContext) -> No
 # Add handlers
 application.add_handler(CommandHandler("cgen", waifugen))
 application.add_handler(CommandHandler("redeem", claimwaifu))
-application.add_handler(CommandHandler("total", check_total_characters))
 application.add_handler(CommandHandler("check", check_waifu))
+application.add_handler(CommandHandler("total", check_total_characters))
