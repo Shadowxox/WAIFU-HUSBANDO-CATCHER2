@@ -19,7 +19,7 @@ async def daily_code(update, context):
         current_time = datetime.datetime.now()
         time_diff = current_time - last_time
         if time_diff.total_seconds() < 36000:
-            await update.message.reply_text("You can only use this command every day ")
+            await update.message.reply_text("⏳ 𝚃𝚑𝚒𝚜 𝚙𝚘𝚠𝚎𝚛𝚏𝚞𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 𝚒𝚜 𝚕𝚒𝚖𝚒𝚝𝚎𝚍! 𝙰𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎 𝚊𝚐𝚊𝚒𝚗 𝚒𝚗 𝟸𝟺 𝚑𝚘𝚞𝚛𝚜.")
             return
 
     code = generate_random_code()
