@@ -31,25 +31,26 @@ async def callback_query_handler(event):
         if data == "rarity_mode:see_by_rarities":
             rarities_buttons = [
                 [
-                    Button.inline("⚪️ Common", data="rarity:⚪️ Common"),
-                    Button.inline("🟢 Medium", data="rarity:🟢 Medium"),
-                    Button.inline("🟣 Rare", data="rarity:🟣 Rare"),
-                    Button.inline("🟡 Legendary", data="rarity:🟡 Legendary"),
+                    Button.inline("🔱 Rare", data="rarity:🔱 Rare"),
+                    Button.inline("🌀 Medium", data="rarity:🌀 Medium"),
+                    Button.inline("🦄 Legendary", data="rarity:🦄 Legendary"),
+                    Button.inline("💮 Special Edition", data="rarity:💮 Special Edition"),
                 ],
                 [
-                    Button.inline("💮 Special Edition", data="rarity:💮 Special Edition"),
                     Button.inline("🔮 Limited Edition", data="rarity:🔮 Limited Edition"),
                     Button.inline("🎐 Celestial", data="rarity:🎐 Celestial"),
                     Button.inline("🔞 Erotic", data="rarity:🔞 Erotic"),
+                    Button.inline("🎭 X Verse", data="rarity:🎭 X Verse"),
                 ],
                 [
-                    Button.inline("🧬 X Verse", data="rarity:🧬 X Verse"),
                     Button.inline("🎃 Halloween Special", data="rarity:🎃 Halloween Special"),
-                    Button.inline("💝 Valentine Special", data="rarity:💝 Valentine Special"),
+                    Button.inline("💞 Valentine Special", data="rarity:💞 Valentine Special"),
                     Button.inline("❄️ Winter Special", data="rarity:❄️ Winter Special"),
+                    Button.inline("🌤️ Summer Special", data="rarity:🌤️ Summer Special"),
                 ],
                 [
-                    Button.inline("🌤️ Summer Special", data="rarity:🌤️ Summer Special"),
+                    Button.inline("🎴 AMV", data="rarity:🎴 AMV"),
+                    Button.inline("🎥 Hollywood", data="rarity:🎥 Hollywood"),
                 ]
             ]
             await event.edit("Select a rarity:", buttons=rarities_buttons)
