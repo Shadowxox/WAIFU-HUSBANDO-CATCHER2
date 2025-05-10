@@ -6,9 +6,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from shivu import shivuu as bot, user_collection, collection, PARTNER
 
 # Constants
-DEVS = (7378476666)
-CHAT_ID = "-1002337505439"
-JOIN_URL = "https://t.me/The_Mugiwara_Support"
+DEVS = (7795212861)
+CHAT_ID = "-1002643948280"
+JOIN_URL = "https://t.me/hwkwjieie"
 CHARACTERS_PER_PAGE = 10
 
 # Lock dictionary to track command processing
