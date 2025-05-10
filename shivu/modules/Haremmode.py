@@ -40,7 +40,7 @@ async def callback_query_handler(event):
                     Button.inline("💮 Special Edition", data="rarity:💮 Special Edition"),
                     Button.inline("🔮 Limited Edition", data="rarity:🔮 Limited Edition"),
                     Button.inline("🎐 Celestial", data="rarity:🎐 Celestial"),
-                    Button.inline("💸 Premium Edition", data="rarity:💸 Premium Edition"),
+                    Button.inline("🔞 Erotic", data="rarity:🔞 Erotic"),
                 ],
                 [
                     Button.inline("🧬 X Verse", data="rarity:🧬 X Verse"),
