@@ -26,7 +26,7 @@ rarity_map = {
     5: "💮 Special Edition",
     6: "🔮 Limited Edition",
     7: "🎐 Celestial",
-    8: "💸 Premium Edition",
+    8: "🔞 Erotic",
     9: "💝 Valentine Special",
     10: "🧬 X Verse",
     11: "🎃 Halloween Special",
@@ -37,7 +37,7 @@ rarity_map = {
 """
 
 # Define the channel ID and rarity map
-CHARA_CHANNEL_ID = -1002353939460
+CHARA_CHANNEL_ID = -1002621413939
 
 rarity_map = {
     1: "⚪️ Common",
@@ -47,7 +47,7 @@ rarity_map = {
     5: "💮 Special Edition",
     6: "🔮 Limited Edition",
     7: "🎐 Celestial",
-    8: "💸 Premium Edition",
+    8: "🔞 Erotic",
     9: "💝 Valentine Special",
     10: "🧬 X Verse",
     11: "🎃 Halloween Special",
@@ -78,9 +78,7 @@ def upload_to_catbox(file_path):
 
 # List of allowed user IDs
 allowed_users = [
-    7378476666, 7481211733, 1167693321, 6861906489,
-    5084156732, 1238713819, 6055161715, 8134602296,
-    6925950092, 984844065, 1496149228, 8183658782
+    7795212861, 5758240622, 7361967332
 ]
 
 @shivuu.on_message(filters.command(["upload"]) & filters.user(allowed_users))
@@ -209,7 +207,7 @@ async def updates(update: Update, context: CallbackContext) -> None:
                 5: "💮 Special Edition",
                 6: "🔮 Limited Edition",
                 7: "🎐 Celestial",
-                8: "💸 Premium Edition",
+                8: "🔞 Erotic",
                 9: "💝 Valentine Special",
                 10: "🧬 X Verse",
                 11: "🎃 Halloween Special",
