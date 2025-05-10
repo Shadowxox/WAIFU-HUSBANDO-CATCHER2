@@ -64,10 +64,15 @@ async def claimwaifu(update: Update, context: CallbackContext):
             return
 
         if details['quantity'] > 0:
-            waifu = details['waifu']
+            waifu = await collection.find_one({'id': details['waifu']['id']})
+            if not waifu:
+                await update.message.reply_text("Waifu data not found.")
+                return
+
             await user_collection.update_one(
                 {'id': user_id},
-                {'$push': {'characters': waifu}}
+                {'$push': {'characters': waifu}},
+                upsert=True
             )
 
             details['quantity'] -= 1
@@ -78,7 +83,7 @@ async def claimwaifu(update: Update, context: CallbackContext):
                 del claimed_waifus[code]
 
             response_text = (
-                f"Congratulations {user_mention}! You have received a new waifu for your harem 💍!\n"
+                f"Congratulations {user_mention}! You have received a new waifu for your harem \ud83d\udc8d!\n"
                 f"Name: {waifu['name']}\nRarity: {waifu['rarity']}\nAnime: {waifu['anime']}\n"
             )
             await update.message.reply_photo(photo=waifu['img_url'], caption=response_text, parse_mode=ParseMode.MARKDOWN)
@@ -98,10 +103,15 @@ async def claimwaifu(update: Update, context: CallbackContext):
 application.add_handler(CommandHandler("cgen", waifugen))
 application.add_handler(CommandHandler("redeem", claimwaifu))
 
+# Function to check total characters in the database
 async def check_total_characters(update: Update, context: CallbackContext) -> None:
     try:
         total_characters = await collection.count_documents({})
-        await update.message.reply_text(f"Total number of characters: {total_characters}")
+        characters = collection.find({})
+        result = f"Total Characters: {total_characters}\n\n"
+        async for char in characters:
+            result += f"ID: {char['id']} | Name: {char['name']} | Rarity: {char['rarity']}\n"
+        await update.message.reply_text(result)
     except Exception as e:
         await update.message.reply_text(f"Error occurred: {e}")
 
