@@ -12,20 +12,20 @@ async def rarities(update: Update, context: CallbackContext):
         characters_cursor = collection.find({})  # Get the cursor for all characters
 
         rarity_counts = {
-            "⚪️ Common": 0,
-            "🟢 Medium": 0,
-            "🟣 Rare": 0,
-            "🟡 Legendary": 0,
+            "🔱 Rare": 0,
+            "🌀 Medium": 0,
+            "🦄 Legendary": 0,
             "💮 Special Edition": 0,
             "🔮 Limited Edition": 0,
             "🎐 Celestial": 0,
             "🔞 Erotic": 0,
-            "🧬 X Verse": 0,
+            "🎭 X Verse": 0,
             "🎃 Halloween Special": 0,
-            "💝 Valentine Special": 0,
+            "💞 Valentine Special": 0,
             "❄️ Winter Special": 0,
             "🌤️ Summer Special": 0,
-            "💫 Angelic": 0,
+            "🎴 AMV": 0,
+            "🎥 Hollywood": 0,
         }
 
         async for character in characters_cursor:  # Iterate over the cursor asynchronously
