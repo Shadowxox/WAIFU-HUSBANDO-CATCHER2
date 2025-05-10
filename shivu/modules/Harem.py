@@ -20,7 +20,7 @@ RARITY_MAPPING = {
     '🟡 Legendary': '🟡',
     '💮 Special Edition': '💮',
     '🔮 Limited Edition': '🔮',
-    '💸 Premium Edition': '💸',
+    '🔞 Erotic': '🔞',
     '🧬 X Verse': '🧬',
     '🎐 Celestial': '🎐',
     '🎃 Halloween Special': '🎃',
@@ -154,7 +154,7 @@ async def pagination_callback(update: Update, context: CallbackContext):
     await harem(update, context, page)
 
 
-application.add_handler(CommandHandler(["mycollection"], harem))
+application.add_handler(CommandHandler(["collection","harem"], harem))
 
 application.add_handler(CallbackQueryHandler(pagination_callback, pattern='^harem:'))
 application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.message.delete(), pattern='^close$'))
