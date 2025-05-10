@@ -1,11 +1,20 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
+from itertools import groupby
+import math
+import random
 from html import escape
-from shivu import user_collection, application
-from telegram.constants import ParseMode
+from shivu import collection, user_collection, application
+from shivu import PARTNER
+from shivu import shivuu as app
+from pyrogram import filters
+from datetime import datetime, timedelta
+import logging
 
-# Rarity Mapping
-RARITY_MAP = {
+MAX_CAPTION_LENGTH = 1024
+
+# Define rarity mapping with updated values
+RARITY_MAPPING = {
     1: "🔱 Rare",
     2: "🌀 Medium",
     3: "🦄 Legendary",
@@ -22,74 +31,101 @@ RARITY_MAP = {
     14: "🎥 Hollywood"
 }
 
-AMV_RARITIES = ["🎴 AMV", "🎥 Hollywood"]
-
-def get_rarity_label(rarity_key):
-    return RARITY_MAP.get(rarity_key, f"❔ Unknown")
-
-async def harem(update: Update, context: CallbackContext, mode="harem") -> None:
+async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
     user = await user_collection.find_one({'id': user_id})
 
-    if not user or 'characters' not in user:
-        await update.message.reply_text("You have no characters yet.")
-        return
-
-    grouped = {}
-    for char in user['characters']:
-        rarity_label = get_rarity_label(char.get('rarity'))
-        if mode == "harem" and rarity_label in AMV_RARITIES:
-            continue
-        if mode == "amv" and rarity_label not in AMV_RARITIES:
-            continue
-
-        char_id = char['id']
-        if char_id not in grouped:
-            grouped[char_id] = {
-                'id': char_id,
-                'names': [char['name']],
-                'rarity': rarity_label,
-                'count': 1
-            }
+    if not user:
+        message = 'You Have Not Guessed any Characters Yet..'
+        if update.message:
+            await update.message.reply_text(message)
         else:
-            grouped[char_id]['count'] += 1
-            if char['name'] not in grouped[char_id]['names']:
-                grouped[char_id]['names'].append(char['name'])
-
-    if not grouped:
-        await update.message.reply_text("No characters found for this view.")
+            await update.callback_query.edit_message_text(message)
         return
 
-    title = f"{escape(update.effective_user.first_name)}'s {'Harem' if mode == 'harem' else 'AMV Collection'}"
-    msg = f"<b>{title}</b>\n\n"
-    for char in grouped.values():
-        rarity_emoji = char['rarity'].split()[0]
-        names = " , ".join(char['names'])
-        msg += f"◇{rarity_emoji}│<code>{char['id']}</code> {names} ×{char['count']}\n"
+    characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
+    character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
+    rarity_mode = await get_user_rarity_mode(user_id)
 
+    if rarity_mode != 'All':
+        characters = [char for char in characters if char.get('rarity') == rarity_mode]
+
+    total_pages = math.ceil(len(characters) / 15)
+    if page < 0 or page >= total_pages:
+        page = 0
+
+    harem_message = f"{escape(update.effective_user.first_name)}'s Harem - Page {page+1}/{total_pages}\n\n"
+    current_characters = characters[page*15:(page+1)*15]
+    current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
+
+    for anime, characters in current_grouped_characters.items():
+        harem_message += f"⌬ {anime} 〔{len(characters)}/{character_counts[characters[0]['id']]}〕\n"
+        for character in characters:
+            count = character_counts[character['id']]
+            rarity = character['rarity']
+            rarity_emoji = RARITY_MAPPING.get(rarity, 'Unknown')
+            harem_message += f"◈⌠{rarity_emoji}⌡ {character['id']} {character['name']} ×{count}\n"
+        harem_message += "\n"
+
+    if len(harem_message) > MAX_CAPTION_LENGTH:
+        harem_message = harem_message[:MAX_CAPTION_LENGTH]
+
+    total_count = len(user['characters'])
     keyboard = [
-        [
-            InlineKeyboardButton("📷 Harem", callback_data="view:harem"),
-            InlineKeyboardButton("🎥 AMV", callback_data="view:amv")
-        ],
-        [InlineKeyboardButton("❌ Close", callback_data="close")]
+        [InlineKeyboardButton(f"See Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")],
+        [InlineKeyboardButton("Waifus", callback_data=f"filter:waifus:{page}"),
+         InlineKeyboardButton("AMV & Hollywood", callback_data=f"filter:amv_hollywood:{page}")]
     ]
+
+    if total_pages > 1:
+        nav_buttons = []
+        if page > 0:
+            nav_buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"harem:{page-1}"))
+        if page < total_pages - 1:
+            nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"harem:{page+1}"))
+        keyboard.append(nav_buttons)
+
+    # Add a close button
+    keyboard.append([InlineKeyboardButton("Close", callback_data="close")])
+
     reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(harem_message, reply_markup=reply_markup)
 
-    await update.message.reply_text(msg, parse_mode=ParseMode.HTML, reply_markup=reply_markup)
-
-# Callback Query Handler
-async def view_callback(update: Update, context: CallbackContext):
+async def filter_callback(update: Update, context: CallbackContext):
     query = update.callback_query
-    _, mode = query.data.split(":")
-    await query.answer()
-    await query.message.delete()
-    await harem(update, context, mode)
+    data = query.data
+    filter_type, page = data.split(':')[1], int(data.split(':')[2])
+    user_id = update.effective_user.id
 
-async def close_callback(update: Update, context: CallbackContext):
-    await update.callback_query.message.delete()
+    user = await user_collection.find_one({'id': user_id})
+    characters = user['characters']
 
-# Register Handlers
-application.add_handler(CommandHandler(["harem", "collection"], harem))
-application.add_handler(CallbackQueryHandler(view_callback, pattern=r"^view:"))
-application.add_handler(CallbackQueryHandler(close_callback, pattern="^close$"))
+    if filter_type == 'waifus':
+        characters = [char for char in characters if char['rarity'] not in ['AMV', 'Hollywood']]
+    elif filter_type == 'amv_hollywood':
+        characters = [char for char in characters if char['rarity'] in ['AMV', 'Hollywood']]
+
+    # Update message with filtered characters
+    await harem(update, context, page)
+
+async def get_user_rarity_mode(user_id: int) -> str:
+    user = await user_collection.find_one({'id': user_id})
+    return user.get('rarity_mode', 'All') if user else 'All'
+
+async def update_user_rarity_mode(user_id: int, rarity_mode: str) -> None:
+    await user_collection.update_one({'id': user_id}, {'$set': {'rarity_mode': rarity_mode}}, upsert=True)
+
+def error(update: Update, context: CallbackContext):
+    logging.error(f"Error: {context.error}")
+
+async def pagination_callback(update: Update, context: CallbackContext):
+    query = update.callback_query
+    data = query.data
+    page = int(data.split(':')[1])
+    await harem(update, context, page)
+
+application.add_handler(CommandHandler(["harem"], harem))
+application.add_handler(CallbackQueryHandler(pagination_callback, pattern='^harem:'))
+application.add_handler(CallbackQueryHandler(filter_callback, pattern='^filter:'))
+application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.message.delete(), pattern='^close$'))
+application.add_error_handler(error)
