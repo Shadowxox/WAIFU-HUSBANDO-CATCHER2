@@ -255,7 +255,6 @@ application.add_handler(CallbackQueryHandler(lambda u, c: harem(u, c, page=int(u
 application.add_error_handler(lambda update, context: logging.error(f"Error: {context.error}"))
 ],
         [InlineKeyboardButton("AMV & Hollywood Videos", callback_data=f"show:amv_hollywood:{page}")]
-    ]
 
     # Add a close button
     keyboard.append([InlineKeyboardButton("Close", callback_data="close")])
