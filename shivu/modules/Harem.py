@@ -1,4 +1,4 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, InputMediaVideo
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
 from itertools import groupby
 import math
@@ -74,9 +74,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     total_count = len(user['characters'])
     keyboard = [
-    [InlineKeyboardButton(f"Collection ({total_count})", callback_data=f"collection:{page}")],
+    [InlineKeyboardButton(f"Collection ({total_count})", switch_inline_query_current_chat=f"collection:{user_id}")],
     [InlineKeyboardButton("🎋 AMV & Hollywood", switch_inline_query_current_chat=f"collection.{user_id}")],
-    [InlineKeyboardButton("Close", callback_data="close")]
     ]
     
     if total_pages > 1:
