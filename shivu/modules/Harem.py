@@ -2,6 +2,7 @@ import math
 import random
 from html import escape
 from itertools import groupby
+from telegram import InputMediaVideo, InputMediaPhoto
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
@@ -99,7 +100,8 @@ async def harem(update: Update, context: CallbackContext, page=0):
 
     # Choose image or video
     def is_video(c):
-        return c.get("rarity") in ['📽 Hollywood', '🎴 AMV'] and c.get("img_url", "").endswith(('.mp4', '.mov'))
+    url = c.get("img_url", "")
+    return c.get("rarity") in ['📽 Hollywood', '🎴 AMV'] and url.lower().endswith(('.mp4', '.mov', '.mkv', '.webm'))
 
     media_char = next((c for c in user['characters'] if is_video(c)), None) if rarity_mode == 'AMV' else next((c for c in user['characters'] if not is_video(c)), None)
 
