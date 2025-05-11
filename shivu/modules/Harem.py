@@ -26,7 +26,7 @@ RARITY_MAPPING = {
     '💞 Valentine Special': '💞',
     '❄️ Winter Special': '❄️',
     '🌤️ Summer Special': '🌤',
-    '📽 Hollywood: '📽',
+    '📽 Hollywood': '📽',
     '🎴 AMV': '🎴',
     # Add any additional rarities here
 }
