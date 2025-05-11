@@ -27,7 +27,7 @@ RARITY_MAPPING = {
     '❄️ Winter Special': '❄️',
     '🌤️ Summer Special': '🌤',
     '🎴 AMV': '🎴',
-    '🎥 Hollywood: '🎬'
+    '🎥 Hollywood: '🎥',
     # Add any additional rarities here
 }
 
@@ -160,4 +160,3 @@ application.add_handler(CommandHandler(["harem"], harem))
 application.add_handler(CallbackQueryHandler(pagination_callback, pattern='^harem:'))
 application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.message.delete(), pattern='^close$'))
 application.add_error_handler(error)
-
