@@ -1,161 +1,155 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
-from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
-from itertools import groupby
-import math
-import random
-from html import escape
-from shivu import collection, user_collection, application
-from shivu import PARTNER
-from shivu import shivuu as app
-from pyrogram import filters
-from datetime import datetime, timedelta
-import logging
-MAX_CAPTION_LENGTH = 1024
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaVideo, InputMediaPhoto
+from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes
+from collections import defaultdict
+import asyncio
 
-# Define rarity emojis
-RARITY_MAPPING = {
-    '🔱 Rare': '🔱',
-    '🌀 Medium': '🌀',
-    '🦄 Legendary': '🦄',
-    '💮 Special Edition': '💮',
-    '🔮 Limited Edition': '🔮',
-    '🔞 Erotic': '🔞',
-    '🎭 X Verse': '🎭',
-    '🎐 Celestial': '🎐',
-    '🎃 Halloween Special': '🎃',
-    '💞 Valentine Special': '💞',
-    '❄️ Winter Special': '❄️',
-    '🌤️ Summer Special': '🌤',
-    '🎴 AMV': '🎴',
-    # Add any additional rarities here
+# Simulated database
+user_collection = ...  # your MongoDB or other storage client
+user_favorites = defaultdict(str)  # user_id -> character_id
+
+RARITY_NAMES = {
+    11: 'Erotic',
+    12: 'AMV',
+    13: 'Hollywood'
 }
 
-async def harem(update: Update, context: CallbackContext, page=0) -> None:
+async def fav(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    user = await user_collection.find_one({'id': user_id})
 
-
-
-    if not user:
-        message = 'You Have Not Guessed any Characters Yet..'
-        if update.message:
-            await update.message.reply_text(message)
-        else:
-            await update.callback_query.edit_message_text(message)
+    if len(context.args) != 1:
+        await update.message.reply_text("Usage: /fav <character_id>")
         return
 
-    characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
-    character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
-    rarity_mode = await get_user_rarity_mode(user_id)
+    fav_id = context.args[0]
+    user = await user_collection.find_one({'id': user_id})
 
-    if rarity_mode != 'All':
-        characters = [char for char in characters if char.get('rarity') == rarity_mode]
+    if not user:
+        await update.message.reply_text("You don't have any characters yet.")
+        return
 
-    total_pages = math.ceil(len(characters) / 15)
-    if page < 0 or page >= total_pages:
-        page = 0
+    character = next((c for c in user['characters'] if c['id'] == fav_id), None)
+    if not character:
+        await update.message.reply_text("Character not found in your collection.")
+        return
 
-    harem_message = f"{escape(update.effective_user.first_name)}'s Harem - Page {page+1}/{total_pages}\n\n"
-    current_characters = characters[page*15:(page+1)*15]
-    current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
+    user_favorites[user_id] = fav_id
+    await update.message.reply_text(f"✅ Character with ID {fav_id} set as your favorite!")
 
-    for anime, characters in current_grouped_characters.items():
-        harem_message += f"⌬ {anime} 〔{len(characters)}/{character_counts[characters[0]['id']]}〕\n"
-        for character in characters:
-            count = character_counts[character['id']]
-            rarity = character['rarity']
-            rarity_emoji = RARITY_MAPPING.get(rarity, 'Unknown')
-            harem_message += f"◈⌠{rarity_emoji}⌡ {character['id']} {character['name']} ×{count}\n"
-        harem_message += "\n"
 
-    if len(harem_message) > MAX_CAPTION_LENGTH:
-        harem_message = harem_message[:MAX_CAPTION_LENGTH]
+def _group_characters(characters):
+    grouped = {}
+    for c in characters:
+        key = (c['id'], c['rarity'])
+        if key not in grouped:
+            grouped[key] = {'id': c['id'], 'names': [c['name']], 'rarity': c['rarity'], 'count': 1}
+        else:
+            grouped[key]['count'] += 1
+            if c['name'] not in grouped[key]['names']:
+                grouped[key]['names'].append(c['name'])
+    return list(grouped.values())
 
-    total_count = len(user['characters'])
-    keyboard = [
-        [InlineKeyboardButton(f"See Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]
-    ]
 
-    if total_pages > 1:
-        nav_buttons = []
-        if page > 0:
-            nav_buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"harem:{page-1}"))
-        if page < total_pages - 1:
-            nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"harem:{page+1}"))
-        keyboard.append(nav_buttons)
+def _build_harem_message(grouped_characters):
+    message_lines = []
+    for c in grouped_characters:
+        rarity_label = RARITY_NAMES.get(c['rarity'], str(c['rarity']))
+        line = f"ID: {c['id']}\nName(s): {', '.join(c['names'])}\nCount: {c['count']}\nRarity: {rarity_label}\n"
+        message_lines.append(line)
+    return '\n'.join(message_lines)
 
-    # Add a close button
-    keyboard.append([InlineKeyboardButton("Close", callback_data="close")])
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+def _build_harem_buttons():
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("See Collection", callback_data='collection'),
+            InlineKeyboardButton("🎞 AMV", callback_data='amv')
+        ]
+    ])
 
-    try:
-        if 'favorites' in user and user['favorites']:
-            fav_character_id = user['favorites'][0]
-            fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
-            if fav_character and 'img_url' in fav_character:
+
+async def _send_text_message(update: Update, text: str, reply_markup: InlineKeyboardMarkup):
+    if update.message:
+        await update.message.reply_text(text=text, reply_markup=reply_markup)
+    else:
+        try:
+            await update.callback_query.edit_message_text(text=text, reply_markup=reply_markup)
+        except:
+            pass
+
+
+async def harem(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    user = await user_collection.find_one({'id': user_id})
+    if not user or 'characters' not in user or not user['characters']:
+        await _send_text_message(update, "You don't have any characters yet.", None)
+        return
+
+    grouped = _group_characters(user['characters'])
+    harem_message = _build_harem_message(grouped)
+    reply_markup = _build_harem_buttons()
+
+    fav_character_id = user_favorites.get(user_id)
+    if fav_character_id:
+        fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
+        if fav_character:
+            if 'video_url' in fav_character:
+                if update.message:
+                    await update.message.reply_video(video=fav_character['video_url'], caption=harem_message, reply_markup=reply_markup)
+                else:
+                    try:
+                        await update.callback_query.edit_message_media(
+                            media=InputMediaVideo(media=fav_character['video_url'], caption=harem_message),
+                            reply_markup=reply_markup
+                        )
+                    except:
+                        await _send_text_message(update, harem_message, reply_markup)
+                return
+            elif 'img_url' in fav_character:
                 if update.message:
                     await update.message.reply_photo(photo=fav_character['img_url'], caption=harem_message, reply_markup=reply_markup)
                 else:
                     try:
                         await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
-                    except BadRequest:
+                    except:
                         await update.callback_query.edit_message_reply_markup(reply_markup=reply_markup)
-            else:
-                await _send_harem_message(update, harem_message, reply_markup)
-        else:
-            await _send_harem_message(update, harem_message, reply_markup, user['characters'])
-    except Exception as e:
-        print(f"Failed to edit message: {e}")
+                return
 
-async def _send_harem_message(update, harem_message, reply_markup, characters=None):
-    if characters:
-        random_character = random.choice(characters)
-        if 'img_url' in random_character:
-            if update.message:
-                await update.message.reply_photo(photo=random_character['img_url'], caption=harem_message, reply_markup=reply_markup)
-            else:
-                try:
-                    await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
-                except BadRequest:
-                    await update.callback_query.edit_message_reply_markup(reply_markup=reply_markup)
-        else:
-            await _send_text_message(update, harem_message, reply_markup)
-    else:
-        await _send_text_message(update, harem_message, reply_markup)
-
-async def _send_text_message(update, text, reply_markup):
-    if update.message:
-        await update.message.reply_text(text, reply_markup=reply_markup)
-    else:
-        try:
-            await update.callback_query.edit_message_caption(caption=text, reply_markup=reply_markup)
-        except BadRequest:
-            await update.callback_query.edit_message_reply_markup(reply_markup=reply_markup)
+    await _send_text_message(update, harem_message, reply_markup)
 
 
-
-
-async def get_user_rarity_mode(user_id: int) -> str:
-    user = await user_collection.find_one({'id': user_id})
-    return user.get('rarity_mode', 'All') if user else 'All'
-
-async def update_user_rarity_mode(user_id: int, rarity_mode: str) -> None:
-    await user_collection.update_one({'id': user_id}, {'$set': {'rarity_mode': rarity_mode}}, upsert=True)
-
-def error(update: Update, context: CallbackContext):
-    logging.error(f"Error: {context.error}")
-
-async def pagination_callback(update: Update, context: CallbackContext):
+async def inline_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    data = query.data
-    print(f"Received callback query: {data}")
-    page = int(data.split(':')[1])
-    await harem(update, context, page)
+    user_id = update.effective_user.id
+    await query.answer()
+
+    user = await user_collection.find_one({'id': user_id})
+    if not user or 'characters' not in user:
+        await query.edit_message_text("No collection found.")
+        return
+
+    if query.data == 'collection':
+        await harem(update, context)
+
+    elif query.data == 'amv':
+        amv_videos = [
+            c for c in user['characters']
+            if c.get('rarity') in [12, 13] and 'video_url' in c
+        ]
+        if not amv_videos:
+            await query.edit_message_text("You have no AMV or Hollywood videos.")
+            return
+
+        video = amv_videos[0]  # or cycle/random choice
+        try:
+            await query.edit_message_media(
+                media=InputMediaVideo(media=video['video_url'], caption=f"🎞 {video['name']} - {RARITY_NAMES.get(video['rarity'], video['rarity'])}"),
+                reply_markup=_build_harem_buttons()
+            )
+        except:
+            await query.edit_message_text("Failed to load video.")
 
 
-application.add_handler(CommandHandler(["harem"], harem))
-
-application.add_handler(CallbackQueryHandler(pagination_callback, pattern='^harem:'))
-application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.message.delete(), pattern='^close$'))
-application.add_error_handler(error)
+def setup_handlers(application):
+    application.add_handler(CommandHandler("harem", harem))
+    application.add_handler(CommandHandler("fav", fav))
+    application.add_handler(CallbackQueryHandler(inline_handler))
