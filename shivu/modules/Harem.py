@@ -100,7 +100,7 @@ async def harem(update: Update, context: CallbackContext, page=0):
 
     # Choose image or video
     def is_video(c):
-    url = c.get("img_url", "")
+                    url = c.get("img_url", "video_url")
     return c.get("rarity") in ['📽 Hollywood', '🎴 AMV'] and url.lower().endswith(('.mp4', '.mov', '.mkv', '.webm'))
 
     media_char = next((c for c in user['characters'] if is_video(c)), None) if rarity_mode == 'AMV' else next((c for c in user['characters'] if not is_video(c)), None)
