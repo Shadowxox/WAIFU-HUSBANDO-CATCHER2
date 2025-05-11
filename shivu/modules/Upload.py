@@ -10,7 +10,7 @@ reuse_id_collection = collection.database['reuse_ids']
 
 # Allowed users who can upload
 allowed_users = [7795212861, 5758240622, 7361967332, 6484111272,
-                 7133552331, 
+                 7133552331, 7812770062,
                 ]
 
 # Rarity map
