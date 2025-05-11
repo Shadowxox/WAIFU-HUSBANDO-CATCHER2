@@ -10,9 +10,9 @@ from shivu import shivuu as app
 from pyrogram import filters
 from datetime import datetime, timedelta
 import logging
+
 MAX_CAPTION_LENGTH = 1024
 
-# Define rarity emojis
 RARITY_MAPPING = {
     '🔱 Rare': '🔱',
     '🌀 Medium': '🌀',
@@ -28,14 +28,11 @@ RARITY_MAPPING = {
     '🌤️ Summer Special': '🌤',
     '📽 Hollywood': '📽',
     '🎴 AMV': '🎴',
-    # Add any additional rarities here
 }
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
     user = await user_collection.find_one({'id': user_id})
-
-
 
     if not user:
         message = 'You Have Not Guessed any Characters Yet..'
@@ -60,13 +57,18 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     current_characters = characters[page*15:(page+1)*15]
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
 
-    for anime, characters in current_grouped_characters.items():
-        harem_message += f"⌬ {anime} 〔{len(characters)}/{character_counts[characters[0]['id']]}〕\n"
-        for character in characters:
+    for anime, char_list in current_grouped_characters.items():
+        seen_ids = set()
+        total_anime_count = sum(1 for c in char_list if c['id'] not in seen_ids and not seen_ids.add(c['id']))
+        harem_message += f"⌬ {anime} 〔{total_anime_count}/{character_counts[char_list[0]['id']]}〕\n"
+        for character in char_list:
+            if character['id'] in seen_ids:
+                continue
+            seen_ids.add(character['id'])
             count = character_counts[character['id']]
             rarity = character['rarity']
             rarity_emoji = RARITY_MAPPING.get(rarity, 'Unknown')
-            harem_message += f"◈⌠{rarity_emoji}⌡ {character['id']} {character['name']} ×{count}\n"
+            harem_message += f"◈⌠{rarity_emoji}⌡ {character['id']} {character['name']} [{rarity_emoji}] ×{count}\n"
         harem_message += "\n"
 
     if len(harem_message) > MAX_CAPTION_LENGTH:
@@ -74,10 +76,10 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     total_count = len(user['characters'])
     keyboard = [
-    [InlineKeyboardButton(f"Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")],
-    [InlineKeyboardButton("🎋 AMV & Hollywood", switch_inline_query_current_chat=f"collection.{user_id}.AMV")],
+        [InlineKeyboardButton(f"Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")],
+        [InlineKeyboardButton("🎋 AMV & Hollywood", switch_inline_query_current_chat=f"collection.{user_id}.AMV")],
     ]
-    
+
     if total_pages > 1:
         nav_buttons = []
         if page > 0:
@@ -86,9 +88,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"harem:{page+1}"))
         keyboard.append(nav_buttons)
 
-    # Add a close button
     keyboard.append([InlineKeyboardButton("Close", callback_data="close")])
-
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     try:
@@ -101,7 +101,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
                 else:
                     try:
                         await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
-                    except BadRequest:
+                    except:
                         await update.callback_query.edit_message_reply_markup(reply_markup=reply_markup)
             else:
                 await _send_harem_message(update, harem_message, reply_markup)
@@ -119,7 +119,7 @@ async def _send_harem_message(update, harem_message, reply_markup, characters=No
             else:
                 try:
                     await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
-                except BadRequest:
+                except:
                     await update.callback_query.edit_message_reply_markup(reply_markup=reply_markup)
         else:
             await _send_text_message(update, harem_message, reply_markup)
@@ -132,11 +132,8 @@ async def _send_text_message(update, text, reply_markup):
     else:
         try:
             await update.callback_query.edit_message_caption(caption=text, reply_markup=reply_markup)
-        except BadRequest:
+        except:
             await update.callback_query.edit_message_reply_markup(reply_markup=reply_markup)
-
-
-
 
 async def get_user_rarity_mode(user_id: int) -> str:
     user = await user_collection.find_one({'id': user_id})
@@ -151,13 +148,10 @@ def error(update: Update, context: CallbackContext):
 async def pagination_callback(update: Update, context: CallbackContext):
     query = update.callback_query
     data = query.data
-    print(f"Received callback query: {data}")
     page = int(data.split(':')[1])
     await harem(update, context, page)
 
-
-application.add_handler(CommandHandler(["harem","collection"], harem))
-
+application.add_handler(CommandHandler(["harem", "collection"], harem))
 application.add_handler(CallbackQueryHandler(pagination_callback, pattern='^harem:'))
 application.add_handler(CallbackQueryHandler(lambda u, c: u.callback_query.message.delete(), pattern='^close$'))
 application.add_error_handler(error)
