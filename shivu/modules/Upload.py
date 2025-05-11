@@ -64,7 +64,7 @@ async def find_available_id():
 @shivuu.on_message(filters.command(["upload"]) & filters.user(allowed_users))
 async def upload_character(client, message):
     reply = message.reply_to_message
-    if reply and (reply.photo or reply.document or reply.video):
+    if reply and (reply.video or reply.photo or (reply.document and reply.document.mime_type.startswith("video/"))):
         args = message.text.split()
         if len(args) != 4:
             await message.reply_text(WRONG_FORMAT_TEXT)
