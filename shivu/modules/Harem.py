@@ -84,7 +84,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         [InlineKeyboardButton(f"Collection ({total_count})", callback_data=f"collection:{page}")],
         [InlineKeyboardButton("🎋 AMV & Hollywood", callback_data=f"show:amv_&_hollywood:{page}")],
         [InlineKeyboardButton("Close", callback_data="close")]
-    ]
+    
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     fav_character_id = user_favorites.get(user_id)
