@@ -1,12 +1,10 @@
-# Required Imports
 import math
 import random
 from html import escape
 from itertools import groupby
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, InputMediaVideo
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
-from pyrogram import filters
 from datetime import datetime, timedelta
 from shivu import application, user_collection
 from telegram.error import BadRequest
@@ -46,7 +44,7 @@ async def harem(update: Update, context: CallbackContext, page=0):
     user = await user_collection.find_one({'id': user_id})
 
     if not user or 'characters' not in user or not user['characters']:
-        await (update.message or update.callback_query).reply_text('You Have Not Guessed any Characters Yet..')
+        await (update.message or update.callback_query).reply_text('You have not guessed any characters yet.')
         return
 
     characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
@@ -104,15 +102,25 @@ async def harem(update: Update, context: CallbackContext, page=0):
         return c.get("rarity") in ['📽 Hollywood', '🎴 AMV'] and c.get("img_url", "").endswith(('.mp4', '.mov'))
 
     media_char = next((c for c in user['characters'] if is_video(c)), None) if rarity_mode == 'AMV' else next((c for c in user['characters'] if not is_video(c)), None)
-    send_fn = update.message.reply_video if rarity_mode == 'AMV' else update.message.reply_photo
-    edit_fn = update.callback_query.edit_message_caption if update.callback_query else None
 
     try:
         if media_char and media_char.get('img_url'):
             if update.message:
-                await send_fn(media_char['img_url'], caption=harem_message, reply_markup=reply_markup)
-            elif edit_fn:
-                await edit_fn(caption=harem_message, reply_markup=reply_markup)
+                if is_video(media_char):
+                    await update.message.reply_video(media_char['img_url'], caption=harem_message, reply_markup=reply_markup)
+                else:
+                    await update.message.reply_photo(media_char['img_url'], caption=harem_message, reply_markup=reply_markup)
+            elif update.callback_query:
+                if is_video(media_char):
+                    await update.callback_query.edit_message_media(
+                        media=InputMediaVideo(media_char['img_url'], caption=harem_message),
+                        reply_markup=reply_markup
+                    )
+                else:
+                    await update.callback_query.edit_message_media(
+                        media=InputMediaPhoto(media_char['img_url'], caption=harem_message),
+                        reply_markup=reply_markup
+                    )
         else:
             await (update.message or update.callback_query).reply_text(harem_message, reply_markup=reply_markup)
     except BadRequest:
