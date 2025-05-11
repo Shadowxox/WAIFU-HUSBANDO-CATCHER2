@@ -83,7 +83,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     keyboard = [
         [InlineKeyboardButton(f"See Collection ({total_count})", callback_data=f"see_collection:{page}")],
          InlineKeyboardButton("AMV & Hollywood", callback_data=f"filter:amv_hollywood:{page}")
-         from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
 from itertools import groupby
 import math
