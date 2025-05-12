@@ -2,7 +2,7 @@ import random
 from html import escape
 from datetime import datetime, timedelta
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler
+from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler, ChatMemberHandler
 
 from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME, db, GROUP_ID
 from shivu import pm_users as collection
@@ -132,6 +132,41 @@ async def send_help_message(update: Update, context: CallbackContext) -> None:
         parse_mode='Markdown'
     )
 
+# Handle when bot is added to a group
+async def bot_added(update: Update, context: CallbackContext) -> None:
+    member = update.my_chat_member
+    if member.new_chat_member.status in ("member", "administrator"):
+        chat = member.chat
+        uptime = datetime.now() - bot_start_time
+        caption = f"""
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━⧫    
+ ✾ Yᴀᴛᴛᴀ~! Yᴏᴜ’ᴠᴇ Sᴜᴍᴍᴏɴᴇᴅ Mᴇ, Sᴇɴᴘᴀɪ!    
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━⧫
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━⧫
+┠ ➻ Tʜᴇ ʙᴏᴛ ʜᴀꜱ ᴀᴡᴀᴋᴇɴᴇᴅ ꜰʀᴏᴍ ɪᴛꜱ ᴅɪɢɪᴛᴀʟ ꜱʟᴜᴍʙᴇʀ~  
+┃     Rᴇᴀᴅʏ ᴛᴏ sᴇʀᴠᴇ ʏᴏᴜ ᴏɴ ᴀɴ ᴇᴘɪᴄ ᴊᴏᴜʀɴᴇʏ!  
+┠ ➻ Wᴀɴɴᴀ ᴜɴʟᴏᴄᴋ ꜱᴇᴄʀᴇᴛ ᴄᴏᴍᴍᴀɴᴅꜱ?  
+┃     Tᴀᴘ ᴍʏ ᴘᴍ, ᴏɴᴇɢᴀɪ~  
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━⧫
+⏱ Uptime: {str(timedelta(seconds=int(uptime.total_seconds())))}
+        """
+        keyboard = [
+            [InlineKeyboardButton("ADD ME", url='http://t.me/Dbz_waifubot?startgroup=true')],
+            [InlineKeyboardButton("SUPPORT", url='https://t.me/hwkwjieie'), InlineKeyboardButton("UPDATES", url='https://t.me/DBZ_COMMUNITY2')],
+            [InlineKeyboardButton("HELP", callback_data='help')],
+            [InlineKeyboardButton("REPO", url='https://t.me/DBZ_ONGOING')]
+        ]
+        try:
+            await context.bot.send_photo(
+                chat_id=chat.id,
+                photo=GROUP_IMAGE_URL,
+                caption=caption,
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except Exception as e:
+            print(f"[GROUP WELCOME FAILED] {chat.id}: {e}")
+
 # Register handlers
 application.add_handler(CommandHandler("start", start, block=False))
 application.add_handler(CallbackQueryHandler(button, pattern="^(help|back)$", block=False))
+application.add_handler(ChatMemberHandler(bot_added, chat_member_types=["my_chat_member"]))
