@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 from shivu import application, user_collection
 
-OWNER_ID = 123456789  # Replace with your actual Telegram user ID
+OWNER_ID = 7795212861  # Replace with your actual Telegram user ID
 GROUPS_AUTO_DELETE = [-1002264558318, -1002643948280]
 
 # /daily command
