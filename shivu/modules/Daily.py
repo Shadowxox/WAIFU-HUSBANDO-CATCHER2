@@ -7,6 +7,12 @@ from shivu import application, user_collection
 OWNER_ID = 7795212861  # Replace with your actual Telegram user ID
 GROUPS_AUTO_DELETE = [-1002264558318, -1002643948280]
 
+def convert_to_datetime(timestamp):
+    """Helper function to convert timestamp to datetime object."""
+    if isinstance(timestamp, str):
+        return datetime.datetime.fromisoformat(timestamp)
+    return timestamp
+
 # /daily command
 async def daily(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -14,6 +20,7 @@ async def daily(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = await user_collection.find_one({"id": user_id}) or {}
     last_claim = user.get("last_daily")
+    last_claim = convert_to_datetime(last_claim)  # Convert to datetime if it's a string
 
     if last_claim and (now - last_claim).total_seconds() < 86400:
         remaining = 86400 - (now - last_claim).total_seconds()
@@ -36,6 +43,7 @@ async def weekly(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user = await user_collection.find_one({"id": user_id}) or {}
     last_claim = user.get("last_weekly")
+    last_claim = convert_to_datetime(last_claim)  # Convert to datetime if it's a string
 
     if last_claim and (now - last_claim).total_seconds() < 604800:
         remaining = 604800 - (now - last_claim).total_seconds()
