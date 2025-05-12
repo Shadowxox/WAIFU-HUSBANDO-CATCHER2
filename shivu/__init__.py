@@ -46,6 +46,7 @@ app = TelegramClient('bot', api_id, api_hash).start(bot_token=TOKEN)
 lol = AsyncIOMotorClient(mongo_url)
 db = lol['Character_catcher']
 collection = db['anime_characters_lol']
+waifu_collection = collection  # ✅ Add this line
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
 group_user_totals_collection = db['group_user_totalsssssss']
