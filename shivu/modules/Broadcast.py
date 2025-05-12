@@ -9,12 +9,14 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("🚫 You are not authorized to use this command.")
         return
 
-    message_to_broadcast = update.message.reply_to_message
-    if message_to_broadcast is None:
-        await update.message.reply_text("⚠️ Please reply to a message to broadcast.")
+    reply = update.message.reply_to_message
+    message_text = update.message.text_html or ""
+    message_caption = update.message.caption_html or ""
+
+    if not reply and not (message_text or message_caption):
+        await update.message.reply_text("⚠️ Please reply to a message or type a message to broadcast.")
         return
 
-    # Fetch all group IDs and user IDs
     all_groups = await top_global_groups_collection.distinct("group_id")
     all_pm_users = await pm_users.distinct("_id")
 
@@ -23,53 +25,79 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
     success_groups = 0
     success_users = 0
-    failed = 0
+    failed_sends = 0
+    success_pins = 0
+    failed_pins = 0
 
     # Send to groups
     for group_id in all_groups:
         try:
-            await context.bot.forward_message(
-                chat_id=group_id,
-                from_chat_id=message_to_broadcast.chat_id,
-                message_id=message_to_broadcast.message_id
-            )
+            if reply:
+                sent = await context.bot.forward_message(
+                    chat_id=group_id,
+                    from_chat_id=reply.chat_id,
+                    message_id=reply.message_id
+                )
+            else:
+                sent = await context.bot.send_message(
+                    chat_id=group_id,
+                    text=message_text or message_caption,
+                    parse_mode="HTML"
+                )
+
             success_groups += 1
+
+            # Try to pin
+            try:
+                await context.bot.pin_chat_message(chat_id=group_id, message_id=sent.message_id, disable_notification=True)
+                success_pins += 1
+            except Exception as e:
+                print(f"[PIN FAILED] {group_id}: {e}")
+                failed_pins += 1
+
         except Exception as e:
-            print(f"[Group] Failed to send to {group_id}: {e}")
-            failed += 1
+            print(f"[SEND FAILED] Group {group_id}: {e}")
+            failed_sends += 1
 
     # Send to PM users
     for user_id in all_pm_users:
         try:
-            await context.bot.forward_message(
-                chat_id=user_id,
-                from_chat_id=message_to_broadcast.chat_id,
-                message_id=message_to_broadcast.message_id
-            )
+            if reply:
+                await context.bot.forward_message(
+                    chat_id=user_id,
+                    from_chat_id=reply.chat_id,
+                    message_id=reply.message_id
+                )
+            else:
+                await context.bot.send_message(
+                    chat_id=user_id,
+                    text=message_text or message_caption,
+                    parse_mode="HTML"
+                )
             success_users += 1
         except Exception as e:
-            print(f"[PM] Failed to send to {user_id}: {e}")
-            failed += 1
+            print(f"[PM FAILED] {user_id}: {e}")
+            failed_sends += 1
 
-    # Report message
+    # Final Report
     report = (
-        "<b>📢 Broadcast Report</b>\n"
+        "<b>📢 Broadcast Report</b>\n\n"
         f"👥 Groups targeted: <b>{total_groups}</b>\n"
         f"📨 Groups succeeded: <b>{success_groups}</b>\n"
+        f"📌 Pinned successfully: <b>{success_pins}</b>\n"
+        f"📌 Pin failed: <b>{failed_pins}</b>\n\n"
         f"🙋‍♂️ PM users targeted: <b>{total_users}</b>\n"
         f"✅ PM users succeeded: <b>{success_users}</b>\n"
-        f"❌ Failed sends: <b>{failed}</b>\n"
+        f"❌ Total failed sends: <b>{failed_sends}</b>\n"
         f"✅ <b>Broadcast complete!</b>"
     )
 
-    # Send report in current chat
     await update.message.reply_html("✅ Broadcast finished. Sending report to your PM...")
 
-    # PM the report to broadcaster
     try:
         await context.bot.send_message(chat_id=AUTHORIZED_BROADCASTER, text=report, parse_mode='HTML')
     except Exception as e:
-        print(f"Failed to send report to owner: {e}")
+        print(f"[REPORT FAILED] Failed to send report: {e}")
 
 # Register the command
 application.add_handler(CommandHandler("broadcast", broadcast, block=False))
