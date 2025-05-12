@@ -1,18 +1,14 @@
 import math
-import random
 from html import escape
 from itertools import groupby
-from telegram import InputMediaVideo, InputMediaPhoto
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, InputMediaVideo
 from telegram.constants import ParseMode
 from telegram.ext import CommandHandler, CallbackQueryHandler, CallbackContext
-from datetime import datetime, timedelta
-from shivu import application, user_collection
 from telegram.error import BadRequest
+from shivu import application, user_collection
 
 MAX_CAPTION_LENGTH = 1024
 
-# Rarity to Emoji Mapping
 RARITY_MAPPING = {
     '🔱 Rare': '🔱',
     '🌀 Medium': '🌀',
@@ -30,6 +26,11 @@ RARITY_MAPPING = {
     '🎴 AMV': '🎴',
 }
 
+# Helper: is video?
+def is_video(c):
+    url = c.get("img_url", "")
+    return c.get("rarity") in ['📽 Hollywood', '🎴 AMV'] and url.lower().endswith(('.mp4', '.mov', '.mkv', '.webm'))
+
 # Get User Preference
 async def get_user_rarity_mode(user_id: int) -> str:
     user = await user_collection.find_one({'id': user_id})
@@ -39,7 +40,7 @@ async def get_user_rarity_mode(user_id: int) -> str:
 async def update_user_rarity_mode(user_id: int, rarity_mode: str) -> None:
     await user_collection.update_one({'id': user_id}, {'$set': {'rarity_mode': rarity_mode}}, upsert=True)
 
-# Main Harem Handler
+# Main /harem Handler
 async def harem(update: Update, context: CallbackContext, page=0):
     user_id = update.effective_user.id
     user = await user_collection.find_one({'id': user_id})
@@ -52,7 +53,7 @@ async def harem(update: Update, context: CallbackContext, page=0):
     character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
     rarity_mode = await get_user_rarity_mode(user_id)
 
-    # Filter characters by rarity mode
+    # Filter characters
     if rarity_mode == 'AMV':
         characters = [c for c in characters if c.get('rarity') in ['📽 Hollywood', '🎴 AMV']]
     else:
@@ -63,7 +64,7 @@ async def harem(update: Update, context: CallbackContext, page=0):
         page = 0
 
     harem_message = f"{escape(update.effective_user.first_name)}'s Harem - Page {page+1}/{total_pages}\n\n"
-    current_chars = characters[page*15:(page+1)*15]
+    current_chars = characters[page * 15:(page + 1) * 15]
     grouped = {k: list(v) for k, v in groupby(current_chars, key=lambda x: x['anime'])}
 
     for anime, chars in grouped.items():
@@ -83,8 +84,10 @@ async def harem(update: Update, context: CallbackContext, page=0):
 
     total_count = len(user['characters'])
     keyboard = [
-        [InlineKeyboardButton(f"Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}"),
-         InlineKeyboardButton("🎋 AMV & Hollywood", switch_inline_query_current_chat=f"collection.{user_id}.AMV")]
+        [
+            InlineKeyboardButton(f"Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}"),
+            InlineKeyboardButton("🎋 AMV & Hollywood", switch_inline_query_current_chat=f"collection.{user_id}.AMV")
+        ]
     ]
 
     if total_pages > 1:
@@ -98,12 +101,8 @@ async def harem(update: Update, context: CallbackContext, page=0):
     keyboard.append([InlineKeyboardButton("Close", callback_data="close")])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Choose image or video
-   def is_video(c):
-    url = c.get("img_url", "")
-    return c.get("rarity") in ['📽 Hollywood', '🎴 AMV'] and url.lower().endswith(('.mp4', '.mov', '.mkv', '.webm'))
- 
-    media_char = next((c for c in user['characters'] if is_video(c)), None) if rarity_mode == 'AMV' else next((c for c in user['characters'] if not is_video(c)), None)
+    # Choose sample media
+    media_char = next((c for c in characters if is_video(c)), None) if rarity_mode == 'AMV' else next((c for c in characters if not is_video(c)), None)
 
     try:
         if media_char and media_char.get('img_url'):
