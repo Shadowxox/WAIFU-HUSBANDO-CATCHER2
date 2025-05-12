@@ -53,7 +53,7 @@ try:
     await query.edit_message_text(
         text="🔐 Please tap *Confirm* in bot PM after messaging it."
 
-"🔁 Use /start in private if you haven’t already.
+🔁 Use /start in private if you haven’t already.
 
 🛑 *NOTE:* Code will be given in private only.
 
