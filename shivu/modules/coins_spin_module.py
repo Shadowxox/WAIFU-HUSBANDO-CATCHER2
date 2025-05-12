@@ -3,7 +3,7 @@ import string
 import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
-from shivu import application, user_collection, waifu_collection
+from shivu import application, user_collection, waifu_collection 
 
 # Constants
 SHOP_COSTS = {
