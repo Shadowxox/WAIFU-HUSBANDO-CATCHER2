@@ -5,7 +5,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, 
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # --- Configuration ---
-MONGO_URL = "your_mongo_url_here"  # Replace this
+MONGO_URL = "mongodb+srv://naruto:hinatababy@cluster0.rqyiyzx.mongodb.net/"  # Replace this
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 users_collection = mongo_client['Character_catcher']['users']
 
