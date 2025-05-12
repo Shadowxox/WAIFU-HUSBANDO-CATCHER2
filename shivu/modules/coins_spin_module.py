@@ -51,15 +51,16 @@ async def shop_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 try:
     await context.bot.send_message(chat_id=user_id, text="✅ Tap confirm below to get your waifu spin code in PM.")
     await query.edit_message_text(
-        text="🔐 Please tap *Confirm* in bot PM after messaging it."
+    text="""🔐 Please tap *Confirm* in bot PM after messaging it.
 
 🔁 Use /start in private if you haven’t already.
 
 🛑 *NOTE:* Code will be given in private only.
 
-🔵 पर्सनल में बॉट को मैसेज करो और फिर Confirm दबाओ। Code वहीं मिलेगा।",
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup(keyboard)
+🔵 पर्सनल में बॉट को मैसेज करो और फिर Confirm दबाओ। Code वहीं मिलेगा।""",
+    parse_mode="Markdown",
+    reply_markup=InlineKeyboardMarkup(keyboard)
+)
     
 except:
     await query.edit_message_text("❌ Please start the bot in PM first using /start, then try again.")
