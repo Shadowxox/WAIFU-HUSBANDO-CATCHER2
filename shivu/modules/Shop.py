@@ -6,8 +6,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 MONGO_URL = "mongodb+srv://naruto:hinatababy@cluster0.rqyiyzx.mongodb.net/"
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 db = mongo_client['Character_catcher']
-shop_collection = db['shop_items']
-users_collection = db['users']
+shop_collection = db['shops']
+users_collection = db["user_collection_lmaoooo"]
 collection_collection = db['user_collection_lmaoooo']
 
 PARTNER_IDS = ["7361967332", "7795212861", "5758240622"]
