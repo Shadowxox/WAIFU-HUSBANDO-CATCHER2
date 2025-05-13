@@ -7,8 +7,8 @@ MONGO_URL = "mongodb+srv://naruto:hinatababy@cluster0.rqyiyzx.mongodb.net/"
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 db = mongo_client['Character_catcher']
 shop_collection = db['shops']
-users_collection = db["user_collection_lmaoooo"]
-collection_collection = db['user_collection_lmaoooo']
+users_collection = db["user"]
+user_collection = db['user_collection_lmaoooo']
 
 PARTNER_IDS = ["7361967332", "7795212861", "5758240622"]
 WAIFUS_PER_PAGE = 1
@@ -25,7 +25,7 @@ async def add_waifu_to_shop(client, message: Message):
         price = int(price)
         quantity = int(quantity)
 
-        waifu = await collection_collection.find_one({"id": int(waifu_id)})
+        waifu = await user_collection.find_one({"id": int(waifu_id)})
         if not waifu:
             await message.reply("❌ Waifu not found.")
             return
@@ -140,7 +140,7 @@ async def buy_waifu(client, callback_query: CallbackQuery):
     await users_collection.update_one({"user_id": user_id}, {"$inc": {"coins": -waifu["price"]}})
 
     # Add to user collection
-    await collection_collection.update_one(
+    await user_collection.update_one(
         {"user_id": user_id, "id": int(waifu_id)},
         {"$inc": {"count": 1}},
         upsert=True
