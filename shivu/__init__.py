@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import asyncio
 from telethon import events, Button
 from telethon.sync import TelegramClient
-from . import shop_admin  # this registers the /addshop, /rshop, /shoplist handlers
+
 
 
 
