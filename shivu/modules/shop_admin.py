@@ -1,6 +1,6 @@
 from pyrogram import filters
 from pyrogram.types import Message
-from . import shivuu as app, collection, db, capsify
+from . import shivu as app, collection, db, capsify
 
 shop_collection = db.admin_shop  # new MongoDB collection for the shop
 PARTNER_IDS = [7361967332, 7795212861, 5758240622]  # Replace with actual partner Telegram IDs
