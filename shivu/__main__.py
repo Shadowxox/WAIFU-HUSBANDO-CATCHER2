@@ -14,7 +14,7 @@ from shivu import (
     UPDATE_CHAT, db, LOGGER
 )
 from shivu.modules import ALL_MODULES
-from . import shop_admin  # this registers the /addshop, /rshop, /shoplist handlers
+
 
 locks = {}
 message_counters = {}
