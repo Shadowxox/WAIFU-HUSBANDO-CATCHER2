@@ -2,10 +2,10 @@ from pyrogram import filters
 from pyrogram.types import Message
 from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument
 from telethon.errors import FloodWaitError
-from shivu import app, shivuu, collection, PARTNER
+from shivu import app, shivuu, collection
 
 CHANNEL = "database_shadowtestingbot"
-ALLOWED_USERS = PARTNER  # ✅ ONLY partners, not owner
+ALLOWED_USERS = "5758240622, 7795212861, 7361967332"  # ✅ ONLY partners, not owner
 
 
 @shivuu.on_message(filters.command("fetchwaifus"))
