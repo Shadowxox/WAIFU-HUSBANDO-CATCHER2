@@ -1,6 +1,9 @@
 from pyrogram import filters
 from pyrogram.types import Message
-from shivu import shivuu as app, collection, db, capsify   # ← fixed path
+from shivu import shivuu as app, collection, db
+
+def capsify(text: str) -> str:
+    return text.capitalize()
 
 shop_collection = db.admin_shop
 PARTNER_IDS = [7361967332, 7795212861, 5758240622]
