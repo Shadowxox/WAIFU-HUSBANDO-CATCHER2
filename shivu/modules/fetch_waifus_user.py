@@ -3,12 +3,15 @@
 from telethon.sync import TelegramClient
 from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument
 from pymongo import MongoClient
+from telethon.sessions import StringSession
 
 api_id = 23287799
 api_hash = "9f4f17dae2181ee22c275b9b40a3c907"
 mongo_url = "mongodb+srv://naruto:hinatababy@cluster0.rqyiyzx.mongodb.net"
 
-client = TelegramClient("user", api_id, api_hash)
+
+# Optional: you can save/load the string manually for security
+client = TelegramClient(StringSession(), api_id, api_hash)
 mongo = MongoClient(mongo_url)
 db = mongo["Character_catcher"]
 collection = db["anime_characters_lol"]
