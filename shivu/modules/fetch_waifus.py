@@ -5,18 +5,20 @@ from telethon.errors import FloodWaitError
 from shivu import app, shivuu, collection
 
 CHANNEL = "database_shadowtestingbot"
-ALLOWED_USERS = "5758240622, 7795212861, 7361967332"  # ✅ ONLY partners, not owner
+ALLOWED_USER_IDS = [5758240622, 7795212861, 7361967332]
 
 
 @shivuu.on_message(filters.command("fetchwaifus"))
 async def fetch_waifus_command(_, message: Message):
     user_id = message.from_user.id
-    if user_id not in ALLOWED_USERS:
-        return await message.reply_text("🚫 Only bot partners can use this command.")
+    if user_id not in ALLOWED_USER_IDS:
+        return await message.reply_text("🚫 Only authorized partners can use this command.")
 
     await message.reply_text("📥 Fetching waifus from the database channel...")
 
     total = success = fail = 0
+    img_count = 0
+    vid_count = 0
 
     try:
         async for msg in app.iter_messages(CHANNEL):
@@ -50,9 +52,11 @@ async def fetch_waifus_command(_, message: Message):
             if msg.photo and hasattr(msg.photo, "file_id"):
                 file_id = msg.photo.file_id
                 field_type = "img_url"
+                img_count += 1
             elif msg.video and hasattr(msg.video, "file_id"):
                 file_id = msg.video.file_id
                 field_type = "vid_url"
+                vid_count += 1
 
             if not file_id or not field_type:
                 fail += 1
@@ -66,7 +70,7 @@ async def fetch_waifus_command(_, message: Message):
                     "anime": anime,
                     "rarity": rarity,
                     field_type: file_id,
-                    "file_id": file_id  # fallback/common
+                    "file_id": file_id
                 }},
                 upsert=True
             )
@@ -78,8 +82,10 @@ async def fetch_waifus_command(_, message: Message):
         return await message.reply_text(f"❌ Error: {e}")
 
     await message.reply_text(
-        f"✅ Sync complete!\n"
-        f"📄 Total messages checked: `{total}`\n"
+        f"✅ **Sync Complete!**\n\n"
+        f"📄 Total messages scanned: `{total}`\n"
+        f"🖼️ Images saved: `{img_count}`\n"
+        f"🎞️ Videos saved: `{vid_count}`\n"
         f"✅ Inserted/Updated: `{success}`\n"
-        f"❌ Failed to process: `{fail}`"
+        f"❌ Skipped/Failed: `{fail}`"
     )
