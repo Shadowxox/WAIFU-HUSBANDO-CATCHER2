@@ -2,11 +2,11 @@ from telethon.tl.types import MessageMediaPhoto
 from telethon.errors import FloodWaitError
 from pyrogram import filters
 from pyrogram.types import Message
-from shivu import app, shivuu, collection, OWNER_ID, PARTNER
+from shivu import app, shivuu, collection, PARTNER
 import asyncio
 
 CHANNEL = "database_shadowtestingbot"
-ALLOWED_USERS = [OWNER_ID] + PARTNER  # Only allowed users can trigger the sync
+ALLOWED_USERS = PARTNER  # Only allowed users can trigger the sync
 
 
 @shivuu.on_message(filters.command("fetchwaifus") & filters.user(ALLOWED_USERS))
