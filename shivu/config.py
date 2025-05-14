@@ -7,7 +7,7 @@ class Config(object):
     GROUP_ID = -1002643948280
 
     TOKEN = "7369319572:AAEP7YLvQP3FQDwY2jMNpos-Zv9B4bnkctE"
-    mongo_url = "mongodb+srv://naruto:hinatababy@cluster0.rqyiyzx.mongodb.net/"
+    mongo_url = "mongodb+srv://lightnesssky29:cidkagenou29@cluster0.epkne5u.mongodb.net/"
     PARTNER = "7361967332", "7795212861", "5758240622"
     PHOTO_URL = ["https://files.catbox.moe/7vr2im.jpg", "https://files.catbox.moe/7vr2im.jpg"]
     SUPPORT_CHAT = "https://t.me/hwkwjieie"
